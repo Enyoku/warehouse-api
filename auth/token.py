@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from . import schemas
 
-SECRET_KEY = "959d9b6167ba45051f9fcde57f1ae334"
+SECRET_KEY = "secret"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
