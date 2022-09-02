@@ -27,3 +27,15 @@ def get_all_users(db: Session = Depends(get_db), current_user: UserBase = Depend
 @router.get("/{id}", response_model=UserDisplay)
 def get_user_by_id(id: int, db: Session = Depends(get_db)):
     return db_user.get_user_by_id(db, id)
+
+
+# Update user info by id
+@router.put("/update/{id}")
+def update_user(id: int, request: UserBase, db: Session = Depends(get_db)):
+    return db_user.update_user_info(db, id, request)
+
+
+# Delete user
+@router.delete("/{id}")
+def update_user(id: int, db: Session = Depends(get_db)):
+    return db_user.delete_user(id, db)

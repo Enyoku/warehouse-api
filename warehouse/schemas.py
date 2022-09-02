@@ -3,8 +3,9 @@ from typing import Optional
 from datetime import datetime
 
 
-class BaseItem(BaseModel):
+class ItemBase(BaseModel):
     item_name: str
+    article: int
     category: str
     price: int
     description: str
@@ -12,12 +13,15 @@ class BaseItem(BaseModel):
 
 
 class ItemDisplay(BaseModel):
-    item_id: int
+    article: int
     item_name: str
     category: str
     price: int
 
+    class Config:
+        orm_mode = True
 
-class ItemList(BaseItem):
+
+class ItemList(ItemBase):
     id: Optional[int]
     updated_on: Optional[datetime]

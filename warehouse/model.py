@@ -7,6 +7,7 @@ class Item(Base):
 
     id = Column(Integer, primary_key=True, index=True, unique=True)
     item_name = Column(String(50))
+    article = Column(Integer, unique=True)
     category = Column(String)
     description = Column(String(350))
     price = Column(Integer)
