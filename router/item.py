@@ -20,3 +20,12 @@ def create_item(request: ItemBase, db: Session = Depends(get_db)):
 def get_all_items(db: Session = Depends(get_db)):
     return db_items.get_all_items(db)
 
+
+@router.put("/{id}")
+def update_item(id: int, request: ItemBase, db: Session = Depends(get_db)):
+    return db_items.update_item(id, request, db)
+
+
+@router.delete("/{id}")
+def delete_item(id: int, db: Session = Depends(get_db)):
+    return db_items.delete_item(id, db)
