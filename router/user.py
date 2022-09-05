@@ -1,9 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
 
-from core.utils import get_db
 from user.schemas import UserDisplay, UserBase
 from db import db_user
 from auth import oauth2
@@ -12,30 +10,30 @@ router = APIRouter(prefix="/user", tags=["User"])
 
 
 # Create user
-@router.post("/create", response_model=UserDisplay)
-def create_user(request: UserBase, db: Session = Depends(get_db)):
-    return db_user.create_user(db, request)
+@router.post("/create", response_model=UserDisplay, tags=["Authentication"])
+async def create_user(request: UserBase):
+    return await db_user.create_user(request)
 
 
 # Get all users
 @router.get("/all", response_model=List[UserDisplay])
-def get_all_users(db: Session = Depends(get_db), current_user: UserBase = Depends(oauth2.get_current_user)):
-    return db_user.get_all_users(db)
+async def get_all_users():  # , current_user: UserBase = Depends(oauth2.get_current_user)):
+    return await db_user.get_all_users()
 
 
 # Get user by id
 @router.get("/{id}", response_model=UserDisplay)
-def get_user_by_id(id: int, db: Session = Depends(get_db)):
-    return db_user.get_user_by_id(db, id)
+async def get_user_by_id(id: int):
+    return await db_user.get_user_by_id(id)
 
 
 # Update user info by id
 @router.put("/update/{id}")
-def update_user(id: int, request: UserBase, db: Session = Depends(get_db)):
-    return db_user.update_user_info(db, id, request)
+async def update_user(id: int, request: UserBase):
+    return await db_user.update_user_info(id, request)
 
 
 # Delete user
 @router.delete("/{id}")
-def update_user(id: int, db: Session = Depends(get_db)):
-    return db_user.delete_user(id, db)
+async def delete_user(id: int):
+    return await db_user.delete_user(id)

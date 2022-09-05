@@ -1,55 +1,25 @@
-from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
+from .database import database
 from warehouse.schemas import ItemBase
-from warehouse.model import Item
+from warehouse.model import item
 
 
-def create_item(db: Session, request: ItemBase):
-    new_item = Item(
-        item_name=request.item_name,
-        article=request.article,
-        category=request.category,
-        description=request.description,
-        price=request.price,
-        amount=request.amount
-    )
-    db.add(new_item)
-    db.commit()
-    db.refresh(new_item)
-    return new_item
+async def create_item(request: ItemBase):
+    new_item = item.insert().values(**request.dict())
+    id = await database.execute(new_item)
+    return {"id": id, **request.dict()}
 
 
-def get_all_items(db: Session):
-    return db.query(Item).all()
+async def get_all_items():
+    return await database.fetch_all(query=item.select())
 
 
-def update_item(id: int, request: ItemBase, db: Session):
-    item = db.query(Item).filter(Item.id == id)
-
-    if not item:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Item with id {id} not found")
-
-    item.update({
-        Item.item_name: request.item_name,
-        Item.article: request.article,
-        Item.category: request.category,
-        Item.price: request.price,
-        Item.description: request.description,
-        Item.amount: request.amount
-    })
-    db.commit()
-    return "updated"
+async def update_item(id: int, request: ItemBase):
+    upd_item = item.update().where(item.c.id == id).values(**request.dict())
+    return await database.execute(upd_item)
 
 
-def delete_item(id: int, db: Session):
-    item = db.query(Item).filter(Item.id == id).first()
-
-    if not item:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Item with id {id} not found")
-
-    db.delete(item)
-    db.commit()
-    return "deleted"
+async def delete_item(id: int):
+    del_item = item.delete().where(item.c.id == id)
+    return await database.execute(del_item)

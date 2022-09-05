@@ -1,13 +1,13 @@
-from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
 from user.schemas import UserBase
-from user.models import User
+from user.models import user
 from core.hash import Hash
+from db.database import database
 
 
-def create_user(db: Session, request: UserBase):
-    new_user = User(
+async def create_user(request: UserBase):
+    new_user = user.insert().values(
         username=request.username,
         email=request.email,
         password=Hash.bcrypt(request.password),
@@ -15,46 +15,30 @@ def create_user(db: Session, request: UserBase):
         position=request.position,
         created_on=request.created_on
     )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+    id = await database.execute(new_user)
+    return {"id": id, **request.dict()}
 
 
-def get_all_users(db: Session):
-    return db.query(User).all()
+async def get_all_users():
+    return await database.fetch_all(user.select())
 
 
-def get_user_by_id(db: Session, id: int):
-    return db.query(User).filter(User.id == id).first()
+async def get_user_by_id(id: int):
+    return await database.fetch_one(user.select().where(user.c.id == id))
 
 
-def update_user_info(db: Session, id: int, request: UserBase):
-    user = db.query(User).filter(User.id == id)
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"User with id {id} not found")
-
-    user.update({
-        User.username: request.username,
-        User.email: request.email,
-        User.password: Hash.bcrypt(request.password),
-        User.full_name: request.full_name,
-        User.position: request.position,
-        User.created_on: request.created_on
-    })
-    db.commit()
-    return "ok"
+async def update_user_info(id: int, request: UserBase):
+    upd_user = user.update().where(user.c.id == id).values(
+        username=request.username,
+        email=request.email,
+        password=Hash.bcrypt(request.password),
+        full_name=request.full_name,
+        position=request.position,
+        created_on=request.created_on
+    )
+    return await database.execute(upd_user)
 
 
-def delete_user(id: int, db: Session):
-    user = db.query(User).filter(User.id == id).first()
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"User with id {id} not found")
-
-    db.delete(user)
-    db.commit()
-    return "deleted"
+async def delete_user(id: int):
+    del_user = user.delete().where(user.c.id == id)
+    return await database.execute(del_user)

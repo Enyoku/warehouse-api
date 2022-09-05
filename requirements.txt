@@ -7,3 +7,4 @@ SQLAlchemy
 uvicorn
 python-jose
 python-multipart
+databases

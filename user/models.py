@@ -13,3 +13,6 @@ class User(Base):
     email = Column(String)
     position = Column(String)
     created_on = Column(DateTime(timezone=True), server_default=sql.func.now())
+
+
+user = User.__table__

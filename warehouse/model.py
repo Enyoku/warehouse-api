@@ -14,3 +14,6 @@ class Item(Base):
     amount = Column(Integer)
     created_on = Column(DateTime(timezone=True), server_default=sql.func.now())
     updated_on = Column(DateTime(timezone=True), server_default=sql.func.now(), onupdate=sql.func.now())
+
+
+item = Item.__table__
